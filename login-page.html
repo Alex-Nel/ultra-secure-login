@@ -338,9 +338,8 @@
             const keyHandler = (e) => {
                 if (document.getElementById('key-hold-step').classList.contains('hidden-step')) return;
 
-                // Check if key matches (case-insensitive for letters, exact for symbols usually)
-                // Note: e.key for Shift+1 is '!', so if target is '!', it works.
-                if (e.type === 'keydown' && e.key === targetKey && !isHolding) {
+                // Check if key matches (case-insensitive)
+                if (e.type === 'keydown' && e.key.toLowerCase() === targetKey.toLowerCase() && !isHolding) {
                     // Start Holding
                     if (input.value === '') {
                         errorText.textContent = "Type the value first!";
@@ -383,7 +382,7 @@
                     requestID = requestAnimationFrame(animate);
                 }
 
-                if (e.type === 'keyup' && e.key === targetKey) {
+                if (e.type === 'keyup' && e.key.toLowerCase() === targetKey.toLowerCase()) {
                     if (isHolding) {
                         // Released too early
                         isHolding = false;
