@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Login Protocol v9.2</title>
+    <title>Secure Login Protocol v9.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -53,8 +53,8 @@
         <!-- Header -->
         <div class="bg-slate-100 p-4 border-b border-slate-200 flex justify-between items-center">
             <div class="flex items-center gap-2 text-blue-900">
-                <i class="fas fa-shield-halved text-xl"></i>
-                <span class="font-bold tracking-wide uppercase text-sm">FortressAuth™</span>
+                <i class="fas fa-building text-xl"></i>
+                <span class="font-bold tracking-wide uppercase text-sm">Organization</span>
             </div>
             <div class="text-xs text-slate-500 mono" id="step-indicator">Step 1/8</div>
         </div>
@@ -75,19 +75,19 @@
 
             <!-- STEP 1: Initial Login -->
             <div id="step-1" class="step-content">
-                <h2 class="text-2xl font-bold mb-2 text-slate-800">Identity Claim</h2>
-                <p class="text-slate-500 text-sm mb-6">Please initiate your authentication sequence.</p>
+                <h2 class="text-2xl font-bold mb-2 text-slate-800">Log In</h2>
+                <p class="text-slate-500 text-sm mb-6">Enter your username and password</p>
                 
                 <div class="mb-4">
-                    <label class="block text-slate-700 text-sm font-bold mb-2" for="init-username">Proposed Username</label>
+                    <label class="block text-slate-700 text-sm font-bold mb-2" for="init-username">Username</label>
                     <input class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" id="init-username" type="text" placeholder="Username" autocomplete="off">
                 </div>
                 <div class="mb-6">
-                    <label class="block text-slate-700 text-sm font-bold mb-2" for="init-password">Proposed Password</label>
+                    <label class="block text-slate-700 text-sm font-bold mb-2" for="init-password">Password</label>
                     <input class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" id="init-password" type="password" placeholder="******************" autocomplete="off">
                 </div>
                 <button onclick="handleInitialLogin()" class="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded w-full transition duration-200">
-                    Initiate Protocol
+                    Log In
                 </button>
             </div>
 
@@ -106,15 +106,20 @@
                 </button>
             </div>
 
-            <!-- TIMER STEP -->
+            <!-- TIMER STEP (Now Editable) -->
             <div id="timer-step" class="hidden-step step-content text-center">
                 <i class="fas fa-hourglass-half text-4xl text-orange-500 mb-4 animate-pulse"></i>
                 <h2 class="text-2xl font-bold mb-4">Are you sure?</h2>
-                <p class="text-slate-600 mb-6">We are giving you a moment to reflect on your data entry accuracy.</p>
+                <p class="text-slate-600 mb-4">We are giving you 10 seconds to reflect on your input. You may edit it below.</p>
                 
+                <!-- Editable Input for Timer Step -->
+                <div class="mb-4">
+                     <input class="mono shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 text-center leading-tight focus:outline-none focus:ring-2 focus:ring-orange-500" id="timer-input" type="text" onpaste="return false" autocomplete="off">
+                </div>
+
                 <div class="text-5xl font-mono font-bold text-slate-800 mb-6" id="timer-display">10</div>
                 
-                <p class="text-xs text-slate-400">Please do not refresh the page.</p>
+                <p class="text-xs text-slate-400">Validation pending timer completion...</p>
             </div>
 
             <!-- ESSAY STEP -->
@@ -157,7 +162,7 @@
         
         <!-- Footer -->
         <div class="bg-slate-50 p-3 text-center border-t border-slate-200">
-            <p class="text-[10px] text-slate-400">© 2024 FortressAuth Security Systems. User IP logged.</p>
+            <p class="text-[10px] text-slate-400">© 2024 Organization. User IP logged.</p>
         </div>
     </div>
 
@@ -229,24 +234,30 @@
                 "Please re-enter your username to confirm strictly.",
                 "text",
                 state.username,
+                // Next
                 () => setupVerificationStep(
                     "Username Verification (2/3)",
                     "Security Check: Please type your username BACKWARDS.",
                     "text",
                     reverseString(state.username),
+                    // Next
                     () => setupVerificationStep(
                         "Username Verification (3/3)",
                         "Final Check: Please type your username normally again.",
                         "text",
                         state.username,
-                        () => runTimer(startPasswordSequence)
-                    )
-                )
+                        // Next: Pass the typed value to the Timer for final validation
+                        (typedValue) => runTimer(typedValue, state.username, 'text', startPasswordSequence),
+                        false // DO NOT VALIDATE YET
+                    ),
+                    true
+                ),
+                true
             );
         }
 
         // Setup Generic Verification View
-        function setupVerificationStep(title, instruction, inputType, expectedValue, nextCallback) {
+        function setupVerificationStep(title, instruction, inputType, expectedValue, nextCallback, validateNow = true) {
             updateProgress(state.currentStage++, 9);
             switchView('verification-step');
             
@@ -264,6 +275,12 @@
             btn.parentNode.replaceChild(newBtn, btn);
 
             newBtn.onclick = () => {
+                if (!validateNow) {
+                    // Skip validation, pass value to callback (Timer)
+                    nextCallback(input.value);
+                    return;
+                }
+
                 if (input.value === expectedValue) {
                     nextCallback();
                 } else {
@@ -279,9 +296,15 @@
             };
         }
 
-        // Timer Logic
-        function runTimer(callback) {
+        // Timer Logic - Now Editable
+        function runTimer(initialValue, expectedValue, inputType, nextCallback) {
             switchView('timer-step');
+            
+            const timerInput = document.getElementById('timer-input');
+            timerInput.value = initialValue;
+            timerInput.type = inputType;
+            timerInput.focus();
+
             let timeLeft = 10;
             const display = document.getElementById('timer-display');
             display.textContent = timeLeft;
@@ -294,10 +317,32 @@
                 
                 if (timeLeft <= 0) {
                     clearInterval(timer);
-                    display.textContent = "Proceeding...";
-                    display.classList.remove('text-slate-800');
-                    display.classList.add('text-green-600');
-                    setTimeout(callback, 1000);
+                    
+                    // TIME UP: Validate Now
+                    if (timerInput.value === expectedValue) {
+                         display.textContent = "Proceeding...";
+                         display.classList.remove('text-slate-800');
+                         display.classList.add('text-green-600');
+                         setTimeout(nextCallback, 1000);
+                    } else {
+                        display.textContent = "Failed.";
+                        display.classList.add('text-red-600');
+                        showError("Validation failed after timer. You must restart this section.");
+                        // Force them to restart the 3rd step verification to annoy them
+                        setTimeout(() => {
+                            // Rewind stage count by 1
+                            state.currentStage--; 
+                            // Go back to Step 3 logic
+                             setupVerificationStep(
+                                inputType === 'password' ? "Password Verification (3/3)" : "Username Verification (3/3)",
+                                "Final Check: Please type your username normally again.",
+                                inputType,
+                                expectedValue,
+                                (val) => runTimer(val, expectedValue, inputType, nextCallback),
+                                false
+                            );
+                        }, 2000);
+                    }
                 }
             }, 1000);
         }
@@ -323,9 +368,12 @@
                         "password",
                         state.password,
                         // Timer again
-                        () => runTimer(startEssayStep)
-                    )
-                )
+                        (typedValue) => runTimer(typedValue, state.password, 'password', startEssayStep),
+                        false // Do not validate yet
+                    ),
+                    true
+                ),
+                true
             );
         }
 
