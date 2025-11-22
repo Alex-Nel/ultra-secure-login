@@ -328,12 +328,10 @@
             holdText.textContent = `HOLD '${targetKey}'`;
             errorText.textContent = '';
 
-            // Annoying Feature: Lose focus on every keystroke (Username only)
-            if (inputType === 'text') {
-                input.addEventListener('input', function() {
-                    this.blur();
-                });
-            }
+            // Annoying Feature: Lose focus on every keystroke (Now for BOTH Username and Password)
+            input.addEventListener('input', function() {
+                this.blur();
+            });
 
             let holdStart = 0;
             let requestID;
