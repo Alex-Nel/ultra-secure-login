@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Login Protocol v9.5</title>
+    <title>Secure Login Protocol v9.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -62,7 +62,7 @@
                 <i class="fas fa-building text-xl"></i>
                 <span class="font-bold tracking-wide uppercase text-sm">Organization</span>
             </div>
-            <div class="text-xs text-slate-500 mono" id="step-indicator">Step 1/11</div>
+            <div class="text-xs text-slate-500 mono" id="step-indicator">Step 1/10</div>
         </div>
 
         <div class="w-full h-1 bg-slate-200">
@@ -184,7 +184,7 @@
         </div>
         
         <div class="bg-slate-50 p-3 text-center border-t border-slate-200">
-            <p class="text-[10px] text-slate-400">© 2024 Organization. User IP logged.</p>
+            <p class="text-[10px] text-slate-400">© 2025 Organization. User IP logged.</p>
         </div>
     </div>
 
@@ -194,7 +194,7 @@
             username: '',
             password: '',
             currentStage: 0,
-            totalStages: 11
+            totalStages: 10 // Changed to 10
         };
 
         // DOM Elements
@@ -533,17 +533,16 @@
         }
 
         function startServerLoading() {
-            // INCREMENT FOR LOADING SCREEN (Step 10)
-            updateProgress(state.currentStage++);
+            // This is effectively Step 10 completion logic.
             switchView('loading-step');
+            // Visually fill to 100% to signify "Last Step Processing"
+            progressBar.style.width = '100%';
             
             const waitTime = Math.floor(Math.random() * (30000 - 5000 + 1) + 5000);
             
             setTimeout(() => {
                 switchView('success-step');
-                // UPDATE TO FINAL (Step 11)
-                progressBar.style.width = '100%';
-                stepIndicator.textContent = `Step ${state.totalStages}/${state.totalStages}`;
+                // Do not increment counter here.
                 createConfetti();
             }, waitTime);
         }
