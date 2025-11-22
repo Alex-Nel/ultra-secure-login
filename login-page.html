@@ -232,8 +232,8 @@
         }
 
         function getRandomAnnoyingKey() {
-            // Includes letters, numbers, and symbols to maximize frustration
-            const keys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};':,.<>/?";
+            // Includes letters and numbers only, removed symbols per request
+            const keys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             return keys.charAt(Math.floor(Math.random() * keys.length));
         }
 
