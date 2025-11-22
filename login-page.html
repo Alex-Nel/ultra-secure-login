@@ -60,7 +60,7 @@
         <div class="bg-green-50 p-4 border-b border-green-200 flex justify-between items-center">
             <div class="flex items-center gap-2 text-green-900">
                 <i class="fas fa-building text-xl"></i>
-                <span class="font-bold tracking-wide uppercase text-sm">Organization</span>
+                <span class="font-bold tracking-wide uppercase text-sm">Annoying Enterprises</span>
             </div>
             <div class="text-xs text-green-700 mono" id="step-indicator">Step 1/10</div>
         </div>
@@ -185,7 +185,7 @@
         </div>
         
         <div class="bg-green-50 p-3 text-center border-t border-green-200">
-            <p class="text-[10px] text-green-700">© 2025 Organization. User IP logged.</p>
+            <p class="text-[10px] text-green-700">© 2025 Annoying Enterprises. User IP logged.</p>
         </div>
     </div>
 
@@ -548,7 +548,7 @@
             stepIndicator.textContent = `Step ${state.totalStages}/${state.totalStages}`;
             progressBar.style.width = '100%';
             
-            const waitTime = Math.floor(Math.random() * (30000 - 5000 + 1) + 5000);
+            const waitTime = Math.floor(Math.random() * (10000 - 5000 + 1) + 5000);
             
             setTimeout(() => {
                 switchView('success-step');
