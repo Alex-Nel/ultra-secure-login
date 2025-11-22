@@ -184,7 +184,7 @@
         </div>
         
         <div class="bg-slate-50 p-3 text-center border-t border-slate-200">
-            <p class="text-[10px] text-slate-400">© 2025 Organization. User IP logged.</p>
+            <p class="text-[10px] text-slate-400">© 2024 Organization. User IP logged.</p>
         </div>
     </div>
 
@@ -312,7 +312,11 @@
             document.querySelector('#key-hold-step h2').textContent = title;
             document.getElementById('key-hold-instruction').innerHTML = instruction;
             
-            const input = document.getElementById('key-hold-input');
+            // Swap input to clear previous listeners
+            const oldInput = document.getElementById('key-hold-input');
+            const input = oldInput.cloneNode(true);
+            oldInput.parentNode.replaceChild(input, oldInput);
+            
             const progress = document.getElementById('hold-progress');
             const holdText = document.getElementById('hold-text');
             const errorText = document.getElementById('hold-error');
@@ -323,6 +327,13 @@
             progress.style.width = '0%';
             holdText.textContent = `HOLD '${targetKey}'`;
             errorText.textContent = '';
+
+            // Annoying Feature: Lose focus on every keystroke (Username only)
+            if (inputType === 'text') {
+                input.addEventListener('input', function() {
+                    this.blur();
+                });
+            }
 
             let holdStart = 0;
             let requestID;
@@ -533,16 +544,16 @@
         }
 
         function startServerLoading() {
-            // This is effectively Step 10 completion logic.
             switchView('loading-step');
-            // Visually fill to 100% to signify "Last Step Processing"
+            
+            // FIX: Update to Step 10/10 and 100% width
+            stepIndicator.textContent = `Step ${state.totalStages}/${state.totalStages}`;
             progressBar.style.width = '100%';
             
             const waitTime = Math.floor(Math.random() * (30000 - 5000 + 1) + 5000);
             
             setTimeout(() => {
                 switchView('success-step');
-                // Do not increment counter here.
                 createConfetti();
             }, waitTime);
         }
