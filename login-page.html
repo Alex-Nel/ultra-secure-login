@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Login Protocol v9.3</title>
+    <title>Secure Login Protocol v9.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -24,13 +24,11 @@
             display: none;
         }
 
-        /* Disable selection to prevent cheating */
         .no-select {
             user-select: none;
             -webkit-user-select: none;
         }
 
-        /* Annoying cursor */
         button:disabled {
             cursor: not-allowed;
             opacity: 0.6;
@@ -43,31 +41,36 @@
         .mono {
             font-family: 'Courier Prime', monospace;
         }
+
+        /* Shake animation for holding error */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake {
+            animation: shake 0.2s ease-in-out 3;
+        }
     </style>
 </head>
 <body class="h-screen w-full flex items-center justify-center text-slate-800 overflow-hidden">
 
-    <!-- Main Container -->
     <div class="w-full max-w-md bg-white shadow-2xl rounded-lg border-t-4 border-blue-800 overflow-hidden step-card relative">
         
-        <!-- Header -->
         <div class="bg-slate-100 p-4 border-b border-slate-200 flex justify-between items-center">
             <div class="flex items-center gap-2 text-blue-900">
                 <i class="fas fa-building text-xl"></i>
                 <span class="font-bold tracking-wide uppercase text-sm">Organization</span>
             </div>
-            <div class="text-xs text-slate-500 mono" id="step-indicator">Step 1/8</div>
+            <div class="text-xs text-slate-500 mono" id="step-indicator">Step 1/10</div>
         </div>
 
-        <!-- Progress Bar that barely moves -->
         <div class="w-full h-1 bg-slate-200">
             <div class="h-full bg-blue-600 w-0 progress-bar" id="progress"></div>
         </div>
 
-        <!-- Content Area -->
         <div class="p-8 min-h-[400px] flex flex-col justify-center">
             
-            <!-- Error Message Box -->
             <div id="error-box" class="hidden mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative text-sm" role="alert">
                 <strong class="font-bold">Security Alert:</strong>
                 <span class="block sm:inline" id="error-text">Invalid Input.</span>
@@ -91,7 +94,7 @@
                 </button>
             </div>
 
-            <!-- GENERIC VERIFICATION TEMPLATE (Used for Steps 2,3,4 and 6,7,8) -->
+            <!-- GENERIC VERIFICATION TEMPLATE -->
             <div id="verification-step" class="hidden-step step-content">
                 <h2 class="text-xl font-bold mb-2 text-slate-800" id="verify-title">Verification</h2>
                 <p class="text-slate-500 text-sm mb-6 bg-yellow-50 p-3 border border-yellow-200 rounded" id="verify-instruction">Instruction goes here.</p>
@@ -106,13 +109,12 @@
                 </button>
             </div>
 
-            <!-- TIMER STEP (Now Editable) -->
+            <!-- TIMER STEP -->
             <div id="timer-step" class="hidden-step step-content text-center">
                 <i class="fas fa-hourglass-half text-4xl text-orange-500 mb-4 animate-pulse"></i>
                 <h2 class="text-2xl font-bold mb-4">Are you sure?</h2>
                 <p class="text-slate-600 mb-4">We are giving you 10 seconds to reflect on your input. You may edit it below.</p>
                 
-                <!-- Editable Input for Timer Step -->
                 <div class="mb-4">
                      <input class="mono shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 text-center leading-tight focus:outline-none focus:ring-2 focus:ring-orange-500" id="timer-input" type="text" onpaste="return false" autocomplete="off">
                 </div>
@@ -120,6 +122,27 @@
                 <div class="text-5xl font-mono font-bold text-slate-800 mb-6" id="timer-display">10</div>
                 
                 <p class="text-xs text-slate-400">Validation pending timer completion...</p>
+            </div>
+
+            <!-- KEY HOLD STEP -->
+            <div id="key-hold-step" class="hidden-step step-content">
+                <h2 class="text-xl font-bold mb-2 text-slate-800">Biometric Stability</h2>
+                <p class="text-slate-500 text-sm mb-4 bg-blue-50 p-3 border border-blue-200 rounded" id="key-hold-instruction">
+                    Re-enter your data, then PRESS and HOLD the <strong>'H'</strong> key for 15 seconds.
+                </p>
+
+                <div class="mb-6">
+                    <input class="mono shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" id="key-hold-input" type="text" onpaste="return false" autocomplete="off" placeholder="Type here first...">
+                </div>
+
+                <!-- Hold Visualizer -->
+                <div class="w-full bg-slate-200 rounded-full h-8 mb-2 relative overflow-hidden border border-slate-300">
+                    <div id="hold-progress" class="bg-gradient-to-r from-blue-500 to-purple-600 h-full w-0 transition-all duration-75 ease-linear"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-600 z-10" id="hold-text">
+                        HOLD KEY
+                    </div>
+                </div>
+                <p class="text-xs text-center text-red-500 h-4" id="hold-error"></p>
             </div>
 
             <!-- ESSAY STEP -->
@@ -160,7 +183,6 @@
 
         </div>
         
-        <!-- Footer -->
         <div class="bg-slate-50 p-3 text-center border-t border-slate-200">
             <p class="text-[10px] text-slate-400">© 2024 Organization. User IP logged.</p>
         </div>
@@ -171,7 +193,8 @@
         const state = {
             username: '',
             password: '',
-            currentStage: 0
+            currentStage: 0,
+            totalStages: 11 // Increased step count
         };
 
         // DOM Elements
@@ -184,7 +207,6 @@
         function showError(msg) {
             errorText.textContent = msg;
             errorBox.classList.remove('hidden');
-            // Shake animation
             document.querySelector('.step-card').classList.add('animate-[bounce_0.2s_ease-in-out_3]');
             setTimeout(() => document.querySelector('.step-card').classList.remove('animate-[bounce_0.2s_ease-in-out_3]'), 600);
         }
@@ -193,10 +215,10 @@
             errorBox.classList.add('hidden');
         }
 
-        function updateProgress(stepNum, totalSteps) {
-            const percent = (stepNum / totalSteps) * 100;
+        function updateProgress(stepNum) {
+            const percent = (stepNum / state.totalStages) * 100;
             progressBar.style.width = `${percent}%`;
-            stepIndicator.textContent = `Step ${stepNum + 1}/9`;
+            stepIndicator.textContent = `Step ${stepNum + 1}/${state.totalStages}`;
         }
 
         function switchView(viewId) {
@@ -209,6 +231,12 @@
             return str.split("").reverse().join("");
         }
 
+        function getRandomAnnoyingKey() {
+            // Includes letters, numbers, and symbols to maximize frustration
+            const keys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};':,.<>/?";
+            return keys.charAt(Math.floor(Math.random() * keys.length));
+        }
+
         // --- STAGE LOGIC ---
 
         // 1. Initial Login
@@ -217,38 +245,36 @@
             const p = document.getElementById('init-password').value;
 
             if (!u || !p) {
-                showError("Fields cannot be empty. This is basic security.");
+                showError("Fields cannot be empty.");
                 return;
             }
             if (u.length < 3) {
-                showError("Username too short. We have standards here.");
+                showError("Username too short.");
                 return;
             }
 
             state.username = u;
             state.password = p;
             
-            // Move to Step 2: User Verify 1
+            // Start Username Sequence
             setupVerificationStep(
                 "Username Verification (1/3)", 
                 "Please re-enter your username to confirm strictly.",
                 "text",
                 state.username,
-                // Next
                 () => setupVerificationStep(
                     "Username Verification (2/3)",
                     "Security Check: Please type your username BACKWARDS.",
                     "text",
                     reverseString(state.username),
-                    // Next
                     () => setupVerificationStep(
                         "Username Verification (3/3)",
                         "Final Check: Please type your username normally again.",
                         "text",
                         state.username,
-                        // Next: Pass the typed value to the Timer for final validation
-                        (typedValue) => runTimer(typedValue, state.username, 'text', startPasswordSequence),
-                        false // DO NOT VALIDATE YET
+                        // Pass to Timer
+                        (val) => runTimer(val, state.username, 'text', startUsernameHold),
+                        false
                     ),
                     true
                 ),
@@ -256,9 +282,131 @@
             );
         }
 
+        // New Hold Logic
+        function startUsernameHold() {
+            const randomKey = getRandomAnnoyingKey();
+            setupKeyHoldStep(
+                "Biometric Stability Check",
+                `Please re-type your username, then HOLD the <strong>'${randomKey}'</strong> key for 15 seconds without letting go.`,
+                "text",
+                state.username,
+                randomKey, // Random key passed here
+                startPasswordSequence 
+            );
+        }
+
+        function startPasswordHold() {
+            const randomKey = getRandomAnnoyingKey();
+            setupKeyHoldStep(
+                "Biometric Stability Check",
+                `Please re-type your password, then HOLD the <strong>'${randomKey}'</strong> key for 15 seconds without letting go.`,
+                "password",
+                state.password,
+                randomKey, // Random key passed here
+                startEssayStep 
+            );
+        }
+
+        function setupKeyHoldStep(title, instruction, inputType, expectedValue, targetKey, nextCallback) {
+            updateProgress(state.currentStage++);
+            switchView('key-hold-step');
+
+            document.querySelector('#key-hold-step h2').textContent = title;
+            document.getElementById('key-hold-instruction').innerHTML = instruction;
+            
+            const input = document.getElementById('key-hold-input');
+            const progress = document.getElementById('hold-progress');
+            const holdText = document.getElementById('hold-text');
+            const errorText = document.getElementById('hold-error');
+            
+            input.value = '';
+            input.type = inputType;
+            input.focus();
+            progress.style.width = '0%';
+            holdText.textContent = `HOLD '${targetKey}'`;
+            errorText.textContent = '';
+
+            let holdStart = 0;
+            let requestID;
+            let isHolding = false;
+
+            // Clean up old listeners by replacing element
+            const newBody = document.body.cloneNode(true);
+            // Note: In a real app, cloning body is drastic, but ensures clean key listeners for this specific puzzle
+            // Here we will just use a document level listener and manage state carefully
+            
+            const keyHandler = (e) => {
+                if (document.getElementById('key-hold-step').classList.contains('hidden-step')) return;
+
+                // Check if key matches (case-insensitive for letters, exact for symbols usually)
+                // Note: e.key for Shift+1 is '!', so if target is '!', it works.
+                if (e.type === 'keydown' && e.key === targetKey && !isHolding) {
+                    // Start Holding
+                    if (input.value === '') {
+                        errorText.textContent = "Type the value first!";
+                        return;
+                    }
+                    isHolding = true;
+                    holdStart = Date.now();
+                    holdText.textContent = "HOLDING...";
+                    errorText.textContent = "";
+                    
+                    const animate = () => {
+                        if (!isHolding) return;
+                        const elapsed = Date.now() - holdStart;
+                        const percent = Math.min((elapsed / 15000) * 100, 100);
+                        progress.style.width = `${percent}%`;
+                        holdText.textContent = `${(15 - elapsed/1000).toFixed(1)}s`;
+
+                        if (elapsed >= 15000) {
+                            isHolding = false;
+                            // Verify Logic
+                            if (input.value === expectedValue) {
+                                holdText.textContent = "COMPLETE";
+                                progress.classList.add('bg-green-500');
+                                setTimeout(() => {
+                                    document.removeEventListener('keydown', keyHandler);
+                                    document.removeEventListener('keyup', keyHandler);
+                                    nextCallback();
+                                }, 1000);
+                            } else {
+                                holdText.textContent = "FAILED";
+                                progress.style.width = '0%';
+                                showError("Input mismatch! You held the key perfectly but typed the wrong data. Try again.");
+                                // Force restart of this step
+                                input.value = '';
+                            }
+                        } else {
+                            requestID = requestAnimationFrame(animate);
+                        }
+                    };
+                    requestID = requestAnimationFrame(animate);
+                }
+
+                if (e.type === 'keyup' && e.key === targetKey) {
+                    if (isHolding) {
+                        // Released too early
+                        isHolding = false;
+                        cancelAnimationFrame(requestID);
+                        progress.style.width = '0%';
+                        holdText.textContent = "RELEASED!";
+                        errorText.textContent = "You let go! Timer reset.";
+                        document.getElementById('hold-progress').parentElement.classList.add('shake');
+                        setTimeout(() => document.getElementById('hold-progress').parentElement.classList.remove('shake'), 500);
+                    }
+                }
+            };
+
+            // Note: We need to ensure we don't stack listeners if function is called multiple times
+            // Ideally we'd use named functions and removeEventListener, but for this file structure:
+            // We will just add it. If the user refreshes, it clears.
+            document.onkeydown = keyHandler;
+            document.onkeyup = keyHandler;
+        }
+
         // Setup Generic Verification View
         function setupVerificationStep(title, instruction, inputType, expectedValue, nextCallback, validateNow = true) {
-            updateProgress(state.currentStage++, 9);
+            updateProgress(state.currentStage++);
             switchView('verification-step');
             
             document.getElementById('verify-title').textContent = title;
@@ -269,14 +417,12 @@
             input.type = inputType;
             input.focus();
 
-            // Remove old listeners
             const btn = document.getElementById('verify-btn');
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
 
             newBtn.onclick = () => {
                 if (!validateNow) {
-                    // Skip validation, pass value to callback (Timer)
                     nextCallback(input.value);
                     return;
                 }
@@ -296,7 +442,7 @@
             };
         }
 
-        // Timer Logic - Now Editable
+        // Timer Logic
         function runTimer(initialValue, expectedValue, inputType, nextCallback) {
             switchView('timer-step');
             
@@ -308,7 +454,7 @@
             let timeLeft = 10;
             const display = document.getElementById('timer-display');
             display.textContent = timeLeft;
-            display.classList.remove('text-green-600');
+            display.classList.remove('text-green-600', 'text-red-600');
             display.classList.add('text-slate-800');
 
             const timer = setInterval(() => {
@@ -318,7 +464,6 @@
                 if (timeLeft <= 0) {
                     clearInterval(timer);
                     
-                    // TIME UP: Validate Now
                     if (timerInput.value === expectedValue) {
                          display.textContent = "Proceeding...";
                          display.classList.remove('text-slate-800');
@@ -327,12 +472,9 @@
                     } else {
                         display.textContent = "Failed.";
                         display.classList.add('text-red-600');
-                        showError("Validation failed after timer. You must restart this section.");
-                        // Force them to restart the 3rd step verification to annoy them
+                        showError("Validation failed. Restarting section.");
                         setTimeout(() => {
-                            // Rewind stage count by 1
                             state.currentStage--; 
-                            // Go back to Step 3 logic
                              setupVerificationStep(
                                 inputType === 'password' ? "Password Verification (3/3)" : "Username Verification (3/3)",
                                 "Final Check: Please type your username normally again.",
@@ -347,29 +489,24 @@
             }, 1000);
         }
 
-        // Password Sequence Wrapper
         function startPasswordSequence() {
-            // Step 6: Password Verify 1
             setupVerificationStep(
                 "Password Verification (1/3)",
                 "For your security, re-enter your password.",
                 "password",
                 state.password,
-                // Step 7: Password Verify 2 (Backwards & Masked)
                 () => setupVerificationStep(
                     "Password Verification (2/3)",
                     "Advanced Check: Type your password BACKWARDS. (Characters are hidden for safety)",
                     "password",
                     reverseString(state.password),
-                    // Step 8: Password Verify 3
                     () => setupVerificationStep(
                         "Password Verification (3/3)",
                         "Final Check: Type your password normally one last time.",
                         "password",
                         state.password,
-                        // Timer again
-                        (typedValue) => runTimer(typedValue, state.password, 'password', startEssayStep),
-                        false // Do not validate yet
+                        (typedValue) => runTimer(typedValue, state.password, 'password', startPasswordHold),
+                        false 
                     ),
                     true
                 ),
@@ -379,7 +516,7 @@
 
         // Essay Logic
         function startEssayStep() {
-            updateProgress(state.currentStage++, 9);
+            updateProgress(state.currentStage++);
             switchView('essay-step');
             
             const area = document.getElementById('essay-input');
@@ -387,7 +524,6 @@
 
             area.oninput = () => {
                 const text = area.value.trim();
-                // Split by whitespace to count words, filter out empty strings
                 const count = text.length === 0 ? 0 : text.split(/\s+/).length;
                 countDisplay.textContent = `Word count: ${count} / 50`;
                 
@@ -412,19 +548,12 @@
             }
         }
 
-        // Fake Server Loading
         function startServerLoading() {
             switchView('loading-step');
-            // Random time between 5000ms (5s) and 30000ms (30s)
             const waitTime = Math.floor(Math.random() * (30000 - 5000 + 1) + 5000);
-            
-            console.log(`User must wait ${waitTime}ms`);
-
             setTimeout(() => {
                 switchView('success-step');
-                updateProgress(9, 9);
-                
-                // Confetti effect (simple CSS version via JS)
+                updateProgress(state.totalStages);
                 createConfetti();
             }, waitTime);
         }
@@ -449,7 +578,6 @@
             }
         }
 
-        // Prevent Copy/Paste on inputs
         document.addEventListener('DOMContentLoaded', () => {
             const inputs = document.getElementsByTagName('input');
             for (let input of inputs) {
