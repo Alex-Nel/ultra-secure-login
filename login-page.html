@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Login Protocol v9.6</title>
+    <title>Secure Login Protocol v9.7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -11,8 +11,8 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
-            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-color: #f0fdf4; /* Green tint background */
+            background-image: radial-gradient(#bbf7d0 1px, transparent 1px);
             background-size: 20px 20px;
         }
 
@@ -55,18 +55,18 @@
 </head>
 <body class="h-screen w-full flex items-center justify-center text-slate-800 overflow-hidden">
 
-    <div class="w-full max-w-md bg-white shadow-2xl rounded-lg border-t-4 border-blue-800 overflow-hidden step-card relative">
+    <div class="w-full max-w-md bg-white shadow-2xl rounded-lg border-t-4 border-green-800 overflow-hidden step-card relative">
         
-        <div class="bg-slate-100 p-4 border-b border-slate-200 flex justify-between items-center">
-            <div class="flex items-center gap-2 text-blue-900">
+        <div class="bg-green-50 p-4 border-b border-green-200 flex justify-between items-center">
+            <div class="flex items-center gap-2 text-green-900">
                 <i class="fas fa-building text-xl"></i>
                 <span class="font-bold tracking-wide uppercase text-sm">Organization</span>
             </div>
-            <div class="text-xs text-slate-500 mono" id="step-indicator">Step 1/10</div>
+            <div class="text-xs text-green-700 mono" id="step-indicator">Step 1/10</div>
         </div>
 
         <div class="w-full h-1 bg-slate-200">
-            <div class="h-full bg-blue-600 w-0 progress-bar" id="progress"></div>
+            <div class="h-full bg-green-600 w-0 progress-bar" id="progress"></div>
         </div>
 
         <div class="p-8 min-h-[400px] flex flex-col justify-center">
@@ -83,13 +83,13 @@
                 
                 <div class="mb-4">
                     <label class="block text-slate-700 text-sm font-bold mb-2" for="init-username">Username</label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" id="init-username" type="text" placeholder="Username" autocomplete="off">
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500" id="init-username" type="text" placeholder="Username" autocomplete="off">
                 </div>
                 <div class="mb-6">
                     <label class="block text-slate-700 text-sm font-bold mb-2" for="init-password">Password</label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" id="init-password" type="password" placeholder="******************" autocomplete="off">
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500" id="init-password" type="password" placeholder="******************" autocomplete="off">
                 </div>
-                <button onclick="handleInitialLogin()" class="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded w-full transition duration-200">
+                <button onclick="handleInitialLogin()" class="bg-green-800 hover:bg-green-900 text-white font-bold py-2 px-4 rounded w-full transition duration-200">
                     Log In
                 </button>
             </div>
@@ -100,7 +100,7 @@
                 <p class="text-slate-500 text-sm mb-6 bg-yellow-50 p-3 border border-yellow-200 rounded" id="verify-instruction">Instruction goes here.</p>
                 
                 <div class="mb-6">
-                    <input class="mono shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" id="verify-input" type="text" onpaste="return false" autocomplete="off">
+                    <input class="mono shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500" id="verify-input" type="text" onpaste="return false" autocomplete="off">
                     <p class="text-xs text-slate-400 mt-2 italic">* Copy and Paste is disabled for security.</p>
                 </div>
                 
@@ -127,18 +127,19 @@
             <!-- KEY HOLD STEP -->
             <div id="key-hold-step" class="hidden-step step-content">
                 <h2 class="text-xl font-bold mb-2 text-slate-800">Biometric Stability</h2>
-                <p class="text-slate-500 text-sm mb-4 bg-blue-50 p-3 border border-blue-200 rounded" id="key-hold-instruction">
+                <p class="text-slate-500 text-sm mb-4 bg-green-50 p-3 border border-green-200 rounded" id="key-hold-instruction">
                     Re-enter your data, then PRESS and HOLD the <strong>'H'</strong> key for 15 seconds.
                 </p>
 
                 <div class="mb-6">
-                    <input class="mono shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" id="key-hold-input" type="text" onpaste="return false" autocomplete="off" placeholder="Type here first...">
+                    <input class="mono shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500" id="key-hold-input" type="text" onpaste="return false" autocomplete="off" placeholder="Type here first...">
                 </div>
 
                 <!-- Hold Visualizer -->
                 <div class="w-full bg-slate-200 rounded-full h-8 mb-2 relative overflow-hidden border border-slate-300">
-                    <div id="hold-progress" class="bg-gradient-to-r from-blue-500 to-purple-600 h-full w-0 transition-all duration-75 ease-linear"></div>
-                    <div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-600 z-10" id="hold-text">
+                    <div id="hold-progress" class="bg-gradient-to-r from-green-500 to-teal-600 h-full w-0 transition-all duration-75 ease-linear"></div>
+                    <!-- CHANGED: Added text-white and drop-shadow for better visibility over green bar -->
+                    <div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white drop-shadow-md z-10" id="hold-text">
                         HOLD KEY
                     </div>
                 </div>
@@ -150,7 +151,7 @@
                 <h2 class="text-xl font-bold mb-2">Reason for Access</h2>
                 <p class="text-slate-500 text-sm mb-4">For security auditing, please provide a detailed explanation (minimum 50 words) regarding your need to access this system.</p>
                 
-                <textarea id="essay-input" class="w-full h-40 p-3 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="I need to login because..."></textarea>
+                <textarea id="essay-input" class="w-full h-40 p-3 border border-slate-300 rounded focus:ring-2 focus:ring-green-500 focus:outline-none text-sm" placeholder="I need to login because..."></textarea>
                 
                 <div class="flex justify-between items-center mt-2">
                     <span class="text-xs text-slate-500" id="word-count">Word count: 0 / 50</span>
@@ -162,11 +163,11 @@
 
             <!-- SERVER LOADING STEP -->
             <div id="loading-step" class="hidden-step step-content text-center">
-                <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-900 mx-auto mb-6"></div>
+                <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-green-900 mx-auto mb-6"></div>
                 <h2 class="text-xl font-bold mb-2">Verifying Credentials</h2>
                 <p class="text-slate-600 text-sm mb-4">Your request is being routed to our secure authentication servers.</p>
                 <div class="w-full bg-slate-200 rounded-full h-2.5 mb-4 dark:bg-slate-300">
-                    <div class="bg-blue-600 h-2.5 rounded-full animate-[width_20s_ease-in-out_infinite]" style="width: 45%"></div>
+                    <div class="bg-green-600 h-2.5 rounded-full animate-[width_20s_ease-in-out_infinite]" style="width: 45%"></div>
                 </div>
                 <p class="text-xs text-slate-400 mono blink">Establishing encrypted handshake...</p>
             </div>
@@ -178,13 +179,13 @@
                 </div>
                 <h2 class="text-3xl font-bold text-slate-800 mb-2">Access Granted</h2>
                 <p class="text-slate-600">You have successfully logged in.</p>
-                <button onclick="location.reload()" class="mt-8 text-blue-600 underline text-sm">Log out and start over</button>
+                <button onclick="location.reload()" class="mt-8 text-green-600 underline text-sm">Log out and start over</button>
             </div>
 
         </div>
         
-        <div class="bg-slate-50 p-3 text-center border-t border-slate-200">
-            <p class="text-[10px] text-slate-400">© 2024 Organization. User IP logged.</p>
+        <div class="bg-green-50 p-3 text-center border-t border-green-200">
+            <p class="text-[10px] text-green-700">© 2024 Organization. User IP logged.</p>
         </div>
     </div>
 
@@ -194,7 +195,7 @@
             username: '',
             password: '',
             currentStage: 0,
-            totalStages: 10 // Changed to 10
+            totalStages: 10
         };
 
         // DOM Elements
@@ -328,7 +329,7 @@
             holdText.textContent = `HOLD '${targetKey}'`;
             errorText.textContent = '';
 
-            // Annoying Feature: Lose focus on every keystroke (Now for BOTH Username and Password)
+            // Annoying Feature: Lose focus on every keystroke
             input.addEventListener('input', function() {
                 this.blur();
             });
@@ -544,7 +545,6 @@
         function startServerLoading() {
             switchView('loading-step');
             
-            // FIX: Update to Step 10/10 and 100% width
             stepIndicator.textContent = `Step ${state.totalStages}/${state.totalStages}`;
             progressBar.style.width = '100%';
             
