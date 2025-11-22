@@ -7,3 +7,7 @@
 - Human facator verification.
 - Thought process verification.
 - Making hackers rethink their decisions.
+
+# How to run:
+- Download the login-page.html file and open it in a web browser of your choice (preferably chrome though)
+- Follow the steps to log in to Annoying Enterprises.
