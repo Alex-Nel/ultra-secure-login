@@ -11,3 +11,5 @@
 # How to run:
 - Download the login-page.html file and open it in a web browser of your choice (preferably chrome though)
 - Follow the steps to log in to Annoying Enterprises.
+
+*If you couldn't tell, this is meant to be a joke. This is a idea that was made during the USF HackJam (Hack-a-thon), and the idea is the make the most annoying log in page.
